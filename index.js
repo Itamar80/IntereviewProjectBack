@@ -4,8 +4,6 @@ const bodyParser = require('body-parser')
 
 const cors = require('cors');
 
-
-const path = require('path')
 const admin = require('firebase-admin');
 admin.initializeApp();
 
@@ -14,7 +12,7 @@ app.use(bodyParser.json())
 app.use(cors({ origin: true }));
 
 // show workers
-async function getWorkers(req, res) {
+const getWorkers = async (req, res) => {
     const snapshot = await admin.firestore().collection('workers').get();
     const workers = []
     snapshot.forEach((doc) => {
@@ -26,6 +24,7 @@ async function getWorkers(req, res) {
     res.status(200).send(JSON.stringify(workers));
 }
 
+// get all workers
 app.get('/', async (req, res) => {
     await getWorkers(req, res)
 })
@@ -51,7 +50,6 @@ app.post('/', async (req, res) => {
 //update worker
 app.put("/:id", async (req, res) => {
     const body = req.body;
-    console.log('put request', body);
     await admin.firestore().collection("workers").doc(req.params.id).update({ name: body.name, email: body.email });
     getWorkers(req, res)
 })
@@ -64,20 +62,7 @@ app.delete("/:id", async (req, res) => {
 
 exports.user = functions.https.onRequest(app);
 
-
-// if (process.env.NODE_ENV === 'production') {
-//     app.use(express.static(path.resolve(__dirname, 'public')));
-// } else {
-//     const corsOptions = {
-//         origin: ['http://127.0.0.1:19006', 'http://localhost:19006/'],
-//         credentials: true
-//     };
-// }
-
-// const logger = require('./services/logger.service')
 const port = 3000;
-// const router = express.Router();
-// app.use('/api', router);
 app.listen(port, () => {
     console.log('Server is ready at ' + port);
 });
